@@ -53,7 +53,7 @@ const faceImages = document.querySelectorAll('.face-image');
 
 // Initialize the game when the page loads
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('FaceBomp game loaded!');
+    console.log('Shiba Bonk game loaded!');
     
     // Add click event listeners to all holes
     holes.forEach((hole, index) => {
@@ -87,6 +87,15 @@ document.addEventListener('DOMContentLoaded', function() {
     shibaModal.addEventListener('click', function(event) {
         if (event.target === shibaModal) {
             hideShibaModal();
+        }
+    });
+    
+    // Add keyboard support for Shiba selection
+    document.addEventListener('keydown', function(event) {
+        if (shibaModal.style.display === 'flex') {
+            if (event.key === 'Escape') {
+                hideShibaModal();
+            }
         }
     });
     
@@ -355,9 +364,9 @@ function showFinalMessage() {
     } else if (score <= 15) {
         wittyMessage = "Excellent work! You've got some serious skills! 🏆";
     } else if (score <= 20) {
-        wittyMessage = "Wow! You're a FaceBomp master! Incredible! 🌟";
+        wittyMessage = "Wow! You're a Shiba Bonk master! Incredible! 🌟";
     } else {
-        wittyMessage = "LEGENDARY! You're the FaceBomp champion! 🥇👑";
+        wittyMessage = "LEGENDARY! You're the Shiba Bonk champion! 🥇👑";
     }
     
     // Update the final message (we'll need to add this element to HTML)
@@ -540,7 +549,7 @@ function showGame() {
  */
 function loadLeaderboard() {
     // Show loading message
-    leaderboardList.innerHTML = '<div style="text-align: center; padding: 20px; color: #87ceeb;">Loading leaderboard...</div>';
+    leaderboardList.innerHTML = '<div style="text-align: center; padding: 20px; color: #EFC482;">Loading leaderboard...</div>';
     
     // Get reference to the scores in the database
     const scoresRef = database.ref('scores');
@@ -582,7 +591,7 @@ function loadLeaderboard() {
  */
 function displayLeaderboard(scores) {
     if (scores.length === 0) {
-        leaderboardList.innerHTML = '<div style="text-align: center; padding: 20px; color: #87ceeb;">No scores yet! Be the first to play!</div>';
+        leaderboardList.innerHTML = '<div style="text-align: center; padding: 20px; color: #EFC482;">No scores yet! Be the first to play!</div>';
         return;
     }
     
@@ -622,14 +631,23 @@ function displayLeaderboard(scores) {
 function showShibaModal() {
     shibaModal.style.display = 'flex';
     
-    // Add click event listeners to all Shiba options
+    // Add click event listeners to all Shiba options (only if not already added)
     const shibaOptions = document.querySelectorAll('.shiba-option');
     shibaOptions.forEach(function(option) {
-        option.addEventListener('click', function() {
-            const shibaImage = option.dataset.shiba;
-            selectShibaImage(shibaImage);
-        });
+        // Remove existing listener to prevent duplicates
+        option.removeEventListener('click', handleShibaOptionClick);
+        // Add new listener
+        option.addEventListener('click', handleShibaOptionClick);
     });
+}
+
+/**
+ * Handles Shiba option click events
+ * @param {Event} event - The click event
+ */
+function handleShibaOptionClick(event) {
+    const shibaImage = event.currentTarget.dataset.shiba;
+    selectShibaImage(shibaImage);
 }
 
 /**
@@ -671,6 +689,12 @@ function selectShibaImage(shibaImage) {
  */
 function updateAllFaceImages(imageUrl) {
     faceImages.forEach(function(faceImage) {
+        // Add error handling for image loading
+        faceImage.onerror = function() {
+            console.error('Failed to load Shiba image:', imageUrl);
+            // Fallback to default Shiba
+            faceImage.src = 'image/Shiba7.jpeg';
+        };
         faceImage.src = imageUrl;
     });
 }

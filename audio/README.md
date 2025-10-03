@@ -36,7 +36,7 @@ FaceBomp/
 ├── index.html
 ├── styles.css
 ├── script.js
-└── Matt.jpg
+└── image/Shiba7.jpeg (default)
 ```
 
 

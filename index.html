@@ -92,11 +92,11 @@
         </div>
 
         <!-- Shiba Selection Modal -->
-        <div id="shiba-modal" class="shiba-modal" style="display: none;">
+        <div id="shiba-modal" class="shiba-modal" style="display: none;" role="dialog" aria-labelledby="shiba-modal-title" aria-modal="true">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2>🐕 Pick Your Shiba 🐕</h2>
-                    <button id="close-shiba-modal" class="close-button">&times;</button>
+                    <h2 id="shiba-modal-title">🐕 Pick Your Shiba 🐕</h2>
+                    <button id="close-shiba-modal" class="close-button" aria-label="Close Shiba selection">&times;</button>
                 </div>
                 
                 <div class="modal-body">
@@ -104,32 +104,32 @@
                     
                     <!-- Shiba Images Grid -->
                     <div class="shiba-grid">
-                        <div class="shiba-option" data-shiba="Shiba1.jpeg">
-                            <img src="image/Shiba1.jpeg" alt="Shiba 1">
+                        <div class="shiba-option" data-shiba="Shiba1.jpeg" role="button" tabindex="0" aria-label="Select Shiba 1">
+                            <img src="image/Shiba1.jpeg" alt="Shiba 1" loading="lazy">
                             <span>Shiba 1</span>
                         </div>
-                        <div class="shiba-option" data-shiba="Shiba2.jpeg">
-                            <img src="image/Shiba2.jpeg" alt="Shiba 2">
+                        <div class="shiba-option" data-shiba="Shiba2.jpeg" role="button" tabindex="0" aria-label="Select Shiba 2">
+                            <img src="image/Shiba2.jpeg" alt="Shiba 2" loading="lazy">
                             <span>Shiba 2</span>
                         </div>
-                        <div class="shiba-option" data-shiba="Shiba3.jpeg">
-                            <img src="image/Shiba3.jpeg" alt="Shiba 3">
+                        <div class="shiba-option" data-shiba="Shiba3.jpeg" role="button" tabindex="0" aria-label="Select Shiba 3">
+                            <img src="image/Shiba3.jpeg" alt="Shiba 3" loading="lazy">
                             <span>Shiba 3</span>
                         </div>
-                        <div class="shiba-option" data-shiba="Shiba4.jpeg">
-                            <img src="image/Shiba4.jpeg" alt="Shiba 4">
+                        <div class="shiba-option" data-shiba="Shiba4.jpeg" role="button" tabindex="0" aria-label="Select Shiba 4">
+                            <img src="image/Shiba4.jpeg" alt="Shiba 4" loading="lazy">
                             <span>Shiba 4</span>
                         </div>
-                        <div class="shiba-option" data-shiba="Shiba5.jpeg">
-                            <img src="image/Shiba5.jpeg" alt="Shiba 5">
+                        <div class="shiba-option" data-shiba="Shiba5.jpeg" role="button" tabindex="0" aria-label="Select Shiba 5">
+                            <img src="image/Shiba5.jpeg" alt="Shiba 5" loading="lazy">
                             <span>Shiba 5</span>
                         </div>
-                        <div class="shiba-option" data-shiba="Shiba6.jpeg">
-                            <img src="image/Shiba6.jpeg" alt="Shiba 6">
+                        <div class="shiba-option" data-shiba="Shiba6.jpeg" role="button" tabindex="0" aria-label="Select Shiba 6">
+                            <img src="image/Shiba6.jpeg" alt="Shiba 6" loading="lazy">
                             <span>Shiba 6</span>
                         </div>
-                        <div class="shiba-option selected" data-shiba="Shiba7.jpeg">
-                            <img src="image/Shiba7.jpeg" alt="Shiba 7">
+                        <div class="shiba-option selected" data-shiba="Shiba7.jpeg" role="button" tabindex="0" aria-label="Select Shiba 7 (Default)">
+                            <img src="image/Shiba7.jpeg" alt="Shiba 7" loading="lazy">
                             <span>Shiba 7 (Default)</span>
                         </div>
                     </div>
