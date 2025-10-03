@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FaceBomp - Whack-A-Mole Game</title>
+    <title>Shiba Bonk - Whack-A-Mole Game</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="game-container">
         <!-- Game Title -->
         <header>
-            <!-- Header buttons container using Flexbox for responsive layout -->
-            <div class="header-buttons">
-                <button id="pick-mole-button" class="pick-mole-button">Pick Your Mole</button>
+            <!-- Header with title and buttons -->
+            <div class="header-content">
                 <div class="title-container">
-                    <h1>FaceBomp</h1>
-                    <p>Click on the popping faces to earn points!</p>
+                    <h1>Shiba Bonk</h1>
+                    <p>Click on the popping Shibas to earn points!</p>
                 </div>
-                <button id="leaderboard-button" class="leaderboard-button">Leaderboard</button>
+                <div class="header-buttons">
+                    <button id="pick-shiba-button" class="pick-shiba-button">Pick Your Shiba</button>
+                    <button id="leaderboard-button" class="leaderboard-button">Leaderboard</button>
+                </div>
             </div>
         </header>
 
@@ -40,22 +42,22 @@
         <!-- Game Board -->
         <div class="game-board">
             <div class="hole" id="hole-1">
-                <img src="Matt.jpg" alt="Face" class="face-image" style="display: none;">
+                <img src="image/Shiba7.jpeg" alt="Shiba" class="face-image" style="display: none;">
             </div>
             <div class="hole" id="hole-2">
-                <img src="Matt.jpg" alt="Face" class="face-image" style="display: none;">
+                <img src="image/Shiba7.jpeg" alt="Shiba" class="face-image" style="display: none;">
             </div>
             <div class="hole" id="hole-3">
-                <img src="Matt.jpg" alt="Face" class="face-image" style="display: none;">
+                <img src="image/Shiba7.jpeg" alt="Shiba" class="face-image" style="display: none;">
             </div>
             <div class="hole" id="hole-4">
-                <img src="Matt.jpg" alt="Face" class="face-image" style="display: none;">
+                <img src="image/Shiba7.jpeg" alt="Shiba" class="face-image" style="display: none;">
             </div>
             <div class="hole" id="hole-5">
-                <img src="Matt.jpg" alt="Face" class="face-image" style="display: none;">
+                <img src="image/Shiba7.jpeg" alt="Shiba" class="face-image" style="display: none;">
             </div>
             <div class="hole" id="hole-6">
-                <img src="Matt.jpg" alt="Face" class="face-image" style="display: none;">
+                <img src="image/Shiba7.jpeg" alt="Shiba" class="face-image" style="display: none;">
             </div>
         </div>
 
@@ -89,42 +91,46 @@
             <button id="back-to-game" class="back-button">Back to Game</button>
         </div>
 
-        <!-- Mole Selection Modal -->
-        <div id="mole-modal" class="mole-modal" style="display: none;">
+        <!-- Shiba Selection Modal -->
+        <div id="shiba-modal" class="shiba-modal" style="display: none;">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2>🐹 Pick Your Mole 🐹</h2>
-                    <button id="close-mole-modal" class="close-button">&times;</button>
+                    <h2>🐕 Pick Your Shiba 🐕</h2>
+                    <button id="close-shiba-modal" class="close-button">&times;</button>
                 </div>
                 
                 <div class="modal-body">
-                    <p class="modal-description">You can upload your own photo to use as the mole, or delete saved images anytime.</p>
+                    <p class="modal-description">Choose your favorite Shiba Inu to use in the game!</p>
                     
-                    <!-- Upload Section -->
-                    <div class="upload-section">
-                        <input type="file" id="image-upload" accept="image/*" style="display: none;">
-                        <button id="upload-button" class="upload-button">📷 Upload New Image</button>
-                    </div>
-                    
-                    <!-- Image Preview Section (shown during upload) -->
-                    <div id="image-preview-section" class="image-preview-section" style="display: none;">
-                        <h3>Preview Your Mole</h3>
-                        <div class="preview-container">
-                            <div class="preview-frame">
-                                <img id="preview-image" src="" alt="Preview">
-                            </div>
+                    <!-- Shiba Images Grid -->
+                    <div class="shiba-grid">
+                        <div class="shiba-option" data-shiba="Shiba1.jpeg">
+                            <img src="image/Shiba1.jpeg" alt="Shiba 1">
+                            <span>Shiba 1</span>
                         </div>
-                        <div class="preview-controls">
-                            <button id="select-preview" class="select-button">Select This Mole</button>
-                            <button id="cancel-preview" class="cancel-button">Cancel</button>
+                        <div class="shiba-option" data-shiba="Shiba2.jpeg">
+                            <img src="image/Shiba2.jpeg" alt="Shiba 2">
+                            <span>Shiba 2</span>
                         </div>
-                    </div>
-                    
-                    <!-- Saved Images Gallery -->
-                    <div class="gallery-section">
-                        <h3>Your Saved Moles</h3>
-                        <div id="mole-gallery" class="mole-gallery">
-                            <!-- Saved mole images will be populated here -->
+                        <div class="shiba-option" data-shiba="Shiba3.jpeg">
+                            <img src="image/Shiba3.jpeg" alt="Shiba 3">
+                            <span>Shiba 3</span>
+                        </div>
+                        <div class="shiba-option" data-shiba="Shiba4.jpeg">
+                            <img src="image/Shiba4.jpeg" alt="Shiba 4">
+                            <span>Shiba 4</span>
+                        </div>
+                        <div class="shiba-option" data-shiba="Shiba5.jpeg">
+                            <img src="image/Shiba5.jpeg" alt="Shiba 5">
+                            <span>Shiba 5</span>
+                        </div>
+                        <div class="shiba-option" data-shiba="Shiba6.jpeg">
+                            <img src="image/Shiba6.jpeg" alt="Shiba 6">
+                            <span>Shiba 6</span>
+                        </div>
+                        <div class="shiba-option selected" data-shiba="Shiba7.jpeg">
+                            <img src="image/Shiba7.jpeg" alt="Shiba 7">
+                            <span>Shiba 7 (Default)</span>
                         </div>
                     </div>
                 </div>
@@ -147,7 +153,6 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
     
     <script src="script.js"></script>
 </body>
