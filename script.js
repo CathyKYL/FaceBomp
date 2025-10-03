@@ -19,7 +19,7 @@ let gameTimer = null;            // Reference to the countdown timer
 let faceTimer = null;            // Reference to the face appearance timer
 let currentActiveFace = null;    // Currently visible face (null if none)
 let currentView = 'game';        // Tracks current view: 'game' or 'leaderboard'
-let selectedShibaImage = 'image/Shiba7.jpeg'; // Currently selected Shiba image (default is Shiba7)
+let selectedShibaImage = 'Image/Shiba7.jpeg'; // Currently selected Shiba image (default is Shiba7)
 
 // DOM element references - getting all the HTML elements we need to interact with
 const startButton = document.getElementById('start-button');
@@ -693,7 +693,7 @@ function updateAllFaceImages(imageUrl) {
         faceImage.onerror = function() {
             console.error('Failed to load Shiba image:', imageUrl);
             // Fallback to default Shiba
-            faceImage.src = 'image/Shiba7.jpeg';
+            faceImage.src = 'Image/Shiba7.jpeg';
         };
         faceImage.src = imageUrl;
     });
