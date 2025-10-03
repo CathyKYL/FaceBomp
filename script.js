@@ -1,6 +1,16 @@
 // FaceBomp Game JavaScript
 // This file contains all the game logic for the Whack-A-Mole style game
 
+// Firebase Configuration and Initialization
+// This connects our app to the Firebase Realtime Database
+const firebaseConfig = {
+    databaseURL: "https://facebomp-default-rtdb.europe-west1.firebasedatabase.app/"
+};
+
+// Initialize Firebase - this sets up the connection to our database
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database(); // Get reference to the database
+
 // Game state variables
 let gameActive = false;           // Tracks if the game is currently running
 let score = 0;                   // Player's current score
@@ -8,6 +18,7 @@ let timeLeft = 30;               // Time remaining in seconds
 let gameTimer = null;            // Reference to the countdown timer
 let faceTimer = null;            // Reference to the face appearance timer
 let currentActiveFace = null;    // Currently visible face (null if none)
+let currentView = 'game';        // Tracks current view: 'game' or 'leaderboard'
 
 // DOM element references - getting all the HTML elements we need to interact with
 const startButton = document.getElementById('start-button');
@@ -16,6 +27,16 @@ const timerDisplay = document.getElementById('timer');
 const finalMessage = document.getElementById('final-message');
 const finalScore = document.getElementById('final-score');
 const restartButton = document.getElementById('restart-button');
+// New elements for Firebase and leaderboard features
+const leaderboardButton = document.getElementById('leaderboard-button');
+const scorePopup = document.getElementById('score-popup');
+const popupScore = document.getElementById('popup-score');
+const playerNameInput = document.getElementById('player-name');
+const submitScoreButton = document.getElementById('submit-score');
+const skipSubmissionButton = document.getElementById('skip-submission');
+const leaderboardView = document.getElementById('leaderboard-view');
+const leaderboardList = document.getElementById('leaderboard-list');
+const backToGameButton = document.getElementById('back-to-game');
 // Audio element references
 const whackSound = document.getElementById('whack-sound');
 const gameEndSound = document.getElementById('game-end-sound');
@@ -39,8 +60,23 @@ document.addEventListener('DOMContentLoaded', function() {
     startButton.addEventListener('click', startGame);
     restartButton.addEventListener('click', startGame);
     
-    // Initially hide the final message
+    // Add event listeners for new Firebase and leaderboard features
+    leaderboardButton.addEventListener('click', showLeaderboard);
+    submitScoreButton.addEventListener('click', submitScore);
+    skipSubmissionButton.addEventListener('click', hideScorePopup);
+    backToGameButton.addEventListener('click', showGame);
+    
+    // Allow Enter key to submit score
+    playerNameInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            submitScore();
+        }
+    });
+    
+    // Initially hide the final message and popup
     finalMessage.style.display = 'none';
+    scorePopup.style.display = 'none';
+    leaderboardView.style.display = 'none';
 });
 
 /**
@@ -269,6 +305,11 @@ function endGame() {
     // Show final message with witty comment
     showFinalMessage();
     
+    // Show score submission popup after a short delay
+    setTimeout(function() {
+        showScorePopup();
+    }, 2000); // Wait 2 seconds after game ends
+    
     // Reset the start button
     startButton.textContent = 'Start Game';
     startButton.disabled = false;
@@ -339,4 +380,212 @@ function playGameEndSound() {
             console.log('Could not play game end sound:', error);
         });
     }
+}
+
+// ========================================
+// FIREBASE AND LEADERBOARD FUNCTIONS
+// ========================================
+
+/**
+ * Shows the score submission popup after game ends
+ * This asks the player if they want to save their score to the leaderboard
+ */
+function showScorePopup() {
+    // Update the popup with the current score
+    popupScore.textContent = score;
+    
+    // Clear the name input field
+    playerNameInput.value = '';
+    
+    // Show the popup
+    scorePopup.style.display = 'flex';
+    
+    // Focus on the name input for better user experience
+    setTimeout(function() {
+        playerNameInput.focus();
+    }, 100);
+}
+
+/**
+ * Hides the score submission popup
+ * Called when player clicks "Skip" or after successful submission
+ */
+function hideScorePopup() {
+    scorePopup.style.display = 'none';
+}
+
+/**
+ * Submits the player's score to Firebase
+ * Handles duplicate names by only updating if new score is higher
+ */
+function submitScore() {
+    const playerName = playerNameInput.value.trim();
+    
+    // Validate that a name was entered
+    if (!playerName) {
+        alert('Please enter your name!');
+        playerNameInput.focus();
+        return;
+    }
+    
+    // Disable the submit button to prevent double submissions
+    submitScoreButton.disabled = true;
+    submitScoreButton.textContent = 'Submitting...';
+    
+    // Check if this name already exists in the database
+    const scoresRef = database.ref('scores');
+    
+    // Query the database to find if this name already exists
+    scoresRef.orderByChild('name').equalTo(playerName).once('value')
+        .then(function(snapshot) {
+            if (snapshot.exists()) {
+                // Name exists, check if new score is higher
+                const existingData = snapshot.val();
+                const existingScore = Object.values(existingData)[0].score;
+                
+                if (score > existingScore) {
+                    // New score is higher, update it
+                    const key = Object.keys(existingData)[0];
+                    return scoresRef.child(key).update({
+                        name: playerName,
+                        score: score,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+                } else {
+                    // New score is not higher, don't update
+                    console.log('Score not updated - existing score is higher');
+                    return Promise.resolve();
+                }
+            } else {
+                // Name doesn't exist, add new entry
+                return scoresRef.push({
+                    name: playerName,
+                    score: score,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+            }
+        })
+        .then(function() {
+            // Success! Hide the popup and show success message
+            hideScorePopup();
+            alert('Score saved successfully! 🎉');
+        })
+        .catch(function(error) {
+            // Handle any errors
+            console.error('Error saving score:', error);
+            alert('Sorry, there was an error saving your score. Please try again.');
+        })
+        .finally(function() {
+            // Re-enable the submit button
+            submitScoreButton.disabled = false;
+            submitScoreButton.textContent = 'Submit';
+        });
+}
+
+/**
+ * Shows the leaderboard view
+ * Fetches and displays all scores from Firebase
+ */
+function showLeaderboard() {
+    // Switch to leaderboard view
+    currentView = 'leaderboard';
+    
+    // Hide game elements and show leaderboard
+    document.querySelector('.game-info').style.display = 'none';
+    document.querySelector('.game-board').style.display = 'none';
+    finalMessage.style.display = 'none';
+    leaderboardView.style.display = 'block';
+    
+    // Load and display the leaderboard
+    loadLeaderboard();
+}
+
+/**
+ * Shows the game view (hides leaderboard)
+ */
+function showGame() {
+    // Switch to game view
+    currentView = 'game';
+    
+    // Show game elements and hide leaderboard
+    document.querySelector('.game-info').style.display = 'flex';
+    document.querySelector('.game-board').style.display = 'grid';
+    leaderboardView.style.display = 'none';
+}
+
+/**
+ * Loads scores from Firebase and displays them in the leaderboard
+ * Sorts scores from highest to lowest
+ */
+function loadLeaderboard() {
+    // Show loading message
+    leaderboardList.innerHTML = '<div style="text-align: center; padding: 20px; color: #87ceeb;">Loading leaderboard...</div>';
+    
+    // Get reference to the scores in the database
+    const scoresRef = database.ref('scores');
+    
+    // Fetch all scores from Firebase
+    scoresRef.once('value')
+        .then(function(snapshot) {
+            const scores = [];
+            
+            // Convert Firebase data to an array
+            if (snapshot.exists()) {
+                snapshot.forEach(function(childSnapshot) {
+                    const data = childSnapshot.val();
+                    scores.push({
+                        name: data.name,
+                        score: data.score,
+                        timestamp: data.timestamp
+                    });
+                });
+            }
+            
+            // Sort scores from highest to lowest
+            scores.sort(function(a, b) {
+                return b.score - a.score;
+            });
+            
+            // Display the leaderboard
+            displayLeaderboard(scores);
+        })
+        .catch(function(error) {
+            console.error('Error loading leaderboard:', error);
+            leaderboardList.innerHTML = '<div style="text-align: center; padding: 20px; color: #ff6b6b;">Error loading leaderboard. Please try again.</div>';
+        });
+}
+
+/**
+ * Displays the leaderboard entries in the HTML
+ * @param {Array} scores - Array of score objects sorted by score (highest first)
+ */
+function displayLeaderboard(scores) {
+    if (scores.length === 0) {
+        leaderboardList.innerHTML = '<div style="text-align: center; padding: 20px; color: #87ceeb;">No scores yet! Be the first to play!</div>';
+        return;
+    }
+    
+    let html = '';
+    
+    // Create HTML for each leaderboard entry
+    scores.forEach(function(scoreData, index) {
+        const rank = index + 1;
+        let rankClass = '';
+        
+        // Add special styling for top 3 players
+        if (rank === 1) rankClass = 'rank-1';
+        else if (rank === 2) rankClass = 'rank-2';
+        else if (rank === 3) rankClass = 'rank-3';
+        
+        html += `
+            <div class="leaderboard-entry ${rankClass}">
+                <div class="rank-number">#${rank}</div>
+                <div class="player-name">${scoreData.name}</div>
+                <div class="player-score">${scoreData.score}</div>
+            </div>
+        `;
+    });
+    
+    // Update the leaderboard HTML
+    leaderboardList.innerHTML = html;
 }
