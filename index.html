@@ -10,8 +10,15 @@
     <div class="game-container">
         <!-- Game Title -->
         <header>
-            <h1>FaceBomp</h1>
-            <p>Click on the popping faces to earn points!</p>
+            <!-- Header buttons container using Flexbox for responsive layout -->
+            <div class="header-buttons">
+                <button id="pick-mole-button" class="pick-mole-button">Pick Your Mole</button>
+                <div class="title-container">
+                    <h1>FaceBomp</h1>
+                    <p>Click on the popping faces to earn points!</p>
+                </div>
+                <button id="leaderboard-button" class="leaderboard-button">Leaderboard</button>
+            </div>
         </header>
 
         <!-- Game Controls and Info -->
@@ -28,7 +35,6 @@
             </div>
             
             <button id="start-button" class="start-button">Start Game</button>
-            <button id="leaderboard-button" class="leaderboard-button">Leaderboard</button>
         </div>
 
         <!-- Game Board -->
@@ -82,6 +88,48 @@
             </div>
             <button id="back-to-game" class="back-button">Back to Game</button>
         </div>
+
+        <!-- Mole Selection Modal -->
+        <div id="mole-modal" class="mole-modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>🐹 Pick Your Mole 🐹</h2>
+                    <button id="close-mole-modal" class="close-button">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                    <p class="modal-description">You can upload your own photo to use as the mole, or delete saved images anytime.</p>
+                    
+                    <!-- Upload Section -->
+                    <div class="upload-section">
+                        <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                        <button id="upload-button" class="upload-button">📷 Upload New Image</button>
+                    </div>
+                    
+                    <!-- Image Preview Section (shown during upload) -->
+                    <div id="image-preview-section" class="image-preview-section" style="display: none;">
+                        <h3>Preview Your Mole</h3>
+                        <div class="preview-container">
+                            <div class="preview-frame">
+                                <img id="preview-image" src="" alt="Preview">
+                            </div>
+                        </div>
+                        <div class="preview-controls">
+                            <button id="select-preview" class="select-button">Select This Mole</button>
+                            <button id="cancel-preview" class="cancel-button">Cancel</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Saved Images Gallery -->
+                    <div class="gallery-section">
+                        <h3>Your Saved Moles</h3>
+                        <div id="mole-gallery" class="mole-gallery">
+                            <!-- Saved mole images will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Audio Elements -->
@@ -99,6 +147,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
     
     <script src="script.js"></script>
 </body>

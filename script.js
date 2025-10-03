@@ -7,9 +7,10 @@ const firebaseConfig = {
     databaseURL: "https://facebomp-default-rtdb.europe-west1.firebasedatabase.app/"
 };
 
-// Initialize Firebase - this sets up the connection to our database
+// Initialize Firebase - this sets up the connection to our database and storage
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database(); // Get reference to the database
+const storage = firebase.storage(); // Get reference to Firebase Storage for images
 
 // Game state variables
 let gameActive = false;           // Tracks if the game is currently running
@@ -19,6 +20,8 @@ let gameTimer = null;            // Reference to the countdown timer
 let faceTimer = null;            // Reference to the face appearance timer
 let currentActiveFace = null;    // Currently visible face (null if none)
 let currentView = 'game';        // Tracks current view: 'game' or 'leaderboard'
+let selectedMoleImage = 'Matt.jpg'; // Currently selected mole image (default or uploaded)
+let currentUploadFile = null;    // File being uploaded
 
 // DOM element references - getting all the HTML elements we need to interact with
 const startButton = document.getElementById('start-button');
@@ -37,6 +40,18 @@ const skipSubmissionButton = document.getElementById('skip-submission');
 const leaderboardView = document.getElementById('leaderboard-view');
 const leaderboardList = document.getElementById('leaderboard-list');
 const backToGameButton = document.getElementById('back-to-game');
+
+// New elements for mole selection feature
+const pickMoleButton = document.getElementById('pick-mole-button');
+const moleModal = document.getElementById('mole-modal');
+const closeMoleModal = document.getElementById('close-mole-modal');
+const imageUpload = document.getElementById('image-upload');
+const uploadButton = document.getElementById('upload-button');
+const imagePreviewSection = document.getElementById('image-preview-section');
+const previewImage = document.getElementById('preview-image');
+const selectPreviewButton = document.getElementById('select-preview');
+const cancelPreviewButton = document.getElementById('cancel-preview');
+const moleGallery = document.getElementById('mole-gallery');
 // Audio element references
 const whackSound = document.getElementById('whack-sound');
 const gameEndSound = document.getElementById('game-end-sound');
@@ -66,6 +81,16 @@ document.addEventListener('DOMContentLoaded', function() {
     skipSubmissionButton.addEventListener('click', hideScorePopup);
     backToGameButton.addEventListener('click', showGame);
     
+    // Add event listeners for mole selection features
+    pickMoleButton.addEventListener('click', showMoleModal);
+    closeMoleModal.addEventListener('click', hideMoleModal);
+    uploadButton.addEventListener('click', function() {
+        imageUpload.click(); // Trigger file input
+    });
+    imageUpload.addEventListener('change', handleImageUpload);
+    selectPreviewButton.addEventListener('click', selectPreviewImage);
+    cancelPreviewButton.addEventListener('click', cancelPreview);
+    
     // Allow Enter key to submit score
     playerNameInput.addEventListener('keypress', function(event) {
         if (event.key === 'Enter') {
@@ -73,10 +98,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Close modal when clicking outside
+    moleModal.addEventListener('click', function(event) {
+        if (event.target === moleModal) {
+            hideMoleModal();
+        }
+    });
+    
     // Initially hide the final message and popup
     finalMessage.style.display = 'none';
     scorePopup.style.display = 'none';
     leaderboardView.style.display = 'none';
+    moleModal.style.display = 'none';
+    
+    // Load saved mole images when page loads
+    loadSavedMoleImages();
 });
 
 /**
@@ -588,4 +624,325 @@ function displayLeaderboard(scores) {
     
     // Update the leaderboard HTML
     leaderboardList.innerHTML = html;
+}
+
+// ========================================
+// MOLE SELECTION AND IMAGE UPLOAD FUNCTIONS
+// ========================================
+
+/**
+ * Shows the mole selection modal
+ * Displays saved images and upload options
+ */
+function showMoleModal() {
+    moleModal.style.display = 'flex';
+    loadSavedMoleImages(); // Refresh the gallery
+    imagePreviewSection.style.display = 'none'; // Hide preview section
+}
+
+/**
+ * Hides the mole selection modal
+ */
+function hideMoleModal() {
+    moleModal.style.display = 'none';
+    imagePreviewSection.style.display = 'none';
+    currentUploadFile = null;
+}
+
+/**
+ * Handles when a user selects an image file for upload
+ * Shows a preview of the image before uploading
+ */
+function handleImageUpload(event) {
+    const file = event.target.files[0];
+    
+    if (!file) {
+        return; // No file selected
+    }
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        alert('Please select an image file (JPG, PNG, GIF, etc.)');
+        return;
+    }
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Image file is too large. Please select an image smaller than 5MB.');
+        return;
+    }
+    
+    // Store the file for later upload
+    currentUploadFile = file;
+    
+    // Create a preview URL and show the preview section
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        previewImage.src = e.target.result;
+        imagePreviewSection.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+}
+
+/**
+ * Cancels the image preview and hides the preview section
+ */
+function cancelPreview() {
+    imagePreviewSection.style.display = 'none';
+    currentUploadFile = null;
+    imageUpload.value = ''; // Clear the file input
+}
+
+/**
+ * Uploads the previewed image to Firebase Storage and saves the reference
+ * This is the main upload function that handles the complete process
+ */
+function selectPreviewImage() {
+    if (!currentUploadFile) {
+        alert('No image to upload!');
+        return;
+    }
+    
+    // Show loading state
+    selectPreviewButton.disabled = true;
+    selectPreviewButton.textContent = 'Uploading...';
+    
+    // Create a unique filename with timestamp
+    const timestamp = Date.now();
+    const filename = `mole_${timestamp}_${currentUploadFile.name}`;
+    
+    // Create a reference to the storage location
+    const storageRef = storage.ref('mole-images/' + filename);
+    
+    // Upload the file to Firebase Storage
+    const uploadTask = storageRef.put(currentUploadFile);
+    
+    // Monitor upload progress
+    uploadTask.on('state_changed',
+        // Progress function
+        function(snapshot) {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            selectPreviewButton.textContent = `Uploading... ${Math.round(progress)}%`;
+        },
+        // Error function
+        function(error) {
+            console.error('Upload error:', error);
+            alert('Upload failed. Please try again.');
+            selectPreviewButton.disabled = false;
+            selectPreviewButton.textContent = 'Select This Mole';
+        },
+        // Success function
+        function() {
+            // Get the download URL for the uploaded image
+            uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+                // Save the image reference to the database
+                saveMoleImageToDatabase(downloadURL, filename);
+            });
+        }
+    );
+}
+
+/**
+ * Saves the uploaded image reference to Firebase Realtime Database
+ * @param {string} imageUrl - The download URL from Firebase Storage
+ * @param {string} filename - The filename of the uploaded image
+ */
+function saveMoleImageToDatabase(imageUrl, filename) {
+    // Get reference to the mole images in the database
+    const moleImagesRef = database.ref('mole-images');
+    
+    // Save the image data to the database
+    moleImagesRef.push({
+        url: imageUrl,
+        filename: filename,
+        timestamp: firebase.database.ServerValue.TIMESTAMP,
+        selected: false // Not selected by default
+    })
+    .then(function() {
+        // Success! Hide preview and refresh gallery
+        hideMoleModal();
+        loadSavedMoleImages();
+        alert('Image uploaded successfully! 🎉');
+    })
+    .catch(function(error) {
+        console.error('Database save error:', error);
+        alert('Failed to save image reference. Please try again.');
+    })
+    .finally(function() {
+        // Reset button state
+        selectPreviewButton.disabled = false;
+        selectPreviewButton.textContent = 'Select This Mole';
+    });
+}
+
+/**
+ * Loads all saved mole images from the database and displays them in the gallery
+ * This function fetches the image references and creates the gallery display
+ */
+function loadSavedMoleImages() {
+    // Show loading message
+    moleGallery.innerHTML = '<div style="text-align: center; padding: 20px; color: #87ceeb;">Loading your moles...</div>';
+    
+    // Get reference to the mole images in the database
+    const moleImagesRef = database.ref('mole-images');
+    
+    // Fetch all mole images from Firebase
+    moleImagesRef.once('value')
+        .then(function(snapshot) {
+            const images = [];
+            
+            // Convert Firebase data to an array
+            if (snapshot.exists()) {
+                snapshot.forEach(function(childSnapshot) {
+                    const data = childSnapshot.val();
+                    images.push({
+                        id: childSnapshot.key,
+                        url: data.url,
+                        filename: data.filename,
+                        timestamp: data.timestamp,
+                        selected: data.selected || false
+                    });
+                });
+            }
+            
+            // Sort by timestamp (newest first)
+            images.sort(function(a, b) {
+                return b.timestamp - a.timestamp;
+            });
+            
+            // Display the gallery
+            displayMoleGallery(images);
+        })
+        .catch(function(error) {
+            console.error('Error loading mole images:', error);
+            moleGallery.innerHTML = '<div style="text-align: center; padding: 20px; color: #ff6b6b;">Error loading images. Please try again.</div>';
+        });
+}
+
+/**
+ * Displays the mole images in the gallery with selection and deletion options
+ * @param {Array} images - Array of image objects from the database
+ */
+function displayMoleGallery(images) {
+    if (images.length === 0) {
+        moleGallery.innerHTML = '<div style="text-align: center; padding: 20px; color: #87ceeb;">No saved moles yet! Upload your first one above.</div>';
+        return;
+    }
+    
+    let html = '';
+    
+    // Create HTML for each mole image
+    images.forEach(function(imageData) {
+        const isSelected = imageData.url === selectedMoleImage || imageData.selected;
+        const selectedClass = isSelected ? 'selected' : '';
+        
+        html += `
+            <div class="mole-gallery-item ${selectedClass}" data-image-id="${imageData.id}" data-image-url="${imageData.url}">
+                <img src="${imageData.url}" alt="Mole Image" loading="lazy">
+                <button class="delete-button" onclick="deleteMoleImage('${imageData.id}', '${imageData.filename}')" title="Delete this mole">×</button>
+                <div class="selected-indicator">Selected</div>
+            </div>
+        `;
+    });
+    
+    // Update the gallery HTML
+    moleGallery.innerHTML = html;
+    
+    // Add click event listeners to gallery items for selection
+    const galleryItems = moleGallery.querySelectorAll('.mole-gallery-item');
+    galleryItems.forEach(function(item) {
+        item.addEventListener('click', function(event) {
+            // Don't select if clicking the delete button
+            if (event.target.classList.contains('delete-button')) {
+                return;
+            }
+            
+            const imageUrl = item.dataset.imageUrl;
+            selectMoleImage(imageUrl, item.dataset.imageId);
+        });
+    });
+}
+
+/**
+ * Selects a mole image and updates the database
+ * @param {string} imageUrl - The URL of the selected image
+ * @param {string} imageId - The database ID of the selected image
+ */
+function selectMoleImage(imageUrl, imageId) {
+    // Update the selected mole image
+    selectedMoleImage = imageUrl;
+    
+    // Update all face images in the game to use the new mole
+    updateAllFaceImages(imageUrl);
+    
+    // Update the database to mark this image as selected
+    const moleImagesRef = database.ref('mole-images');
+    
+    // First, unselect all images
+    moleImagesRef.once('value').then(function(snapshot) {
+        const updates = {};
+        snapshot.forEach(function(childSnapshot) {
+            updates[childSnapshot.key + '/selected'] = false;
+        });
+        
+        // Then select the chosen image
+        updates[imageId + '/selected'] = true;
+        
+        // Apply all updates
+        return moleImagesRef.update(updates);
+    })
+    .then(function() {
+        // Refresh the gallery to show the new selection
+        loadSavedMoleImages();
+        console.log('Mole image selected:', imageUrl);
+    })
+    .catch(function(error) {
+        console.error('Error updating selection:', error);
+    });
+}
+
+/**
+ * Updates all face images in the game to use the selected mole image
+ * @param {string} imageUrl - The URL of the mole image to use
+ */
+function updateAllFaceImages(imageUrl) {
+    faceImages.forEach(function(faceImage) {
+        faceImage.src = imageUrl;
+    });
+}
+
+/**
+ * Deletes a mole image from both Firebase Storage and the database
+ * @param {string} imageId - The database ID of the image to delete
+ * @param {string} filename - The filename of the image in storage
+ */
+function deleteMoleImage(imageId, filename) {
+    if (!confirm('Are you sure you want to delete this mole image?')) {
+        return;
+    }
+    
+    // Delete from Firebase Storage
+    const storageRef = storage.ref('mole-images/' + filename);
+    storageRef.delete()
+        .then(function() {
+            // Delete from database
+            const moleImagesRef = database.ref('mole-images/' + imageId);
+            return moleImagesRef.remove();
+        })
+        .then(function() {
+            // Check if this was the selected image
+            if (selectedMoleImage.includes(filename)) {
+                // Reset to default image
+                selectedMoleImage = 'Matt.jpg';
+                updateAllFaceImages(selectedMoleImage);
+            }
+            
+            // Refresh the gallery
+            loadSavedMoleImages();
+            console.log('Mole image deleted successfully');
+        })
+        .catch(function(error) {
+            console.error('Error deleting mole image:', error);
+            alert('Failed to delete image. Please try again.');
+        });
 }

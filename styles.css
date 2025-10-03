@@ -27,7 +27,27 @@ body {
 }
 
 /* Header Styles */
-header h1 {
+header {
+    margin-bottom: 30px;
+}
+
+/* Header buttons container using Flexbox for responsive layout */
+.header-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+/* Title container in the center */
+.title-container {
+    flex: 1;
+    text-align: center;
+    min-width: 200px;
+}
+
+.title-container h1 {
     font-size: 3rem;
     font-weight: bold;
     margin-bottom: 10px;
@@ -38,10 +58,39 @@ header h1 {
     background-clip: text;
 }
 
-header p {
+.title-container p {
     font-size: 1.2rem;
-    margin-bottom: 30px;
     opacity: 0.9;
+    margin: 0;
+}
+
+/* Header button styles */
+.pick-mole-button, .leaderboard-button {
+    background: linear-gradient(45deg, #ff6b6b, #ffa500);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    min-width: 120px;
+}
+
+.pick-mole-button:hover, .leaderboard-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(45deg, #ff7b7b, #ffb500);
+}
+
+.pick-mole-button:active, .leaderboard-button:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Game Info Section */
@@ -128,12 +177,15 @@ header p {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(2, 1fr);
-    gap: 20px;
+    gap: 15px; /* Reduced gap for better balance */
     margin: 30px 0;
     padding: 20px;
     background: linear-gradient(135deg, rgba(135, 206, 235, 0.1), rgba(255, 255, 255, 0.05));
     border-radius: 15px;
     border: 1px solid rgba(255, 255, 255, 0.1);
+    max-width: 600px; /* Limit width for better mobile experience */
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Hole Styles */
@@ -416,6 +468,277 @@ header p {
     text-align: right;
 }
 
+/* Mole Selection Modal Styles */
+.mole-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    padding: 20px;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, rgba(30, 60, 114, 0.95), rgba(42, 82, 152, 0.95));
+    border-radius: 20px;
+    border: 2px solid rgba(135, 206, 235, 0.5);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    max-width: 800px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-header h2 {
+    font-size: 2rem;
+    color: #87ceeb;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    margin: 0;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    color: #87ceeb;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.close-button:hover {
+    background: rgba(135, 206, 235, 0.2);
+    transform: scale(1.1);
+}
+
+.modal-body {
+    padding: 30px;
+}
+
+.modal-description {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 30px;
+    font-size: 1.1rem;
+}
+
+/* Upload Section */
+.upload-section {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.upload-button {
+    background: linear-gradient(45deg, #4a90e2, #87ceeb);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.upload-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(45deg, #5ba0f2, #97defb);
+}
+
+/* Image Preview Section */
+.image-preview-section {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.image-preview-section h3 {
+    color: #87ceeb;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.preview-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.preview-frame {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid rgba(135, 206, 235, 0.5);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    background: #2c5aa0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.preview-controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.select-button, .cancel-button {
+    padding: 12px 25px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.select-button {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.select-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(45deg, #34ce57, #2dd4aa);
+}
+
+.cancel-button {
+    background: linear-gradient(45deg, #6c757d, #adb5bd);
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.cancel-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(45deg, #7c858d, #bdc5cd);
+}
+
+/* Gallery Section */
+.gallery-section h3 {
+    color: #87ceeb;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.mole-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.mole-gallery-item {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 15px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.mole-gallery-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    border-color: rgba(135, 206, 235, 0.5);
+}
+
+.mole-gallery-item.selected {
+    border-color: #87ceeb;
+    box-shadow: 0 0 20px rgba(135, 206, 235, 0.5);
+}
+
+.mole-gallery-item img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+.mole-gallery-item .delete-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(220, 53, 69, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    opacity: 0;
+}
+
+.mole-gallery-item:hover .delete-button {
+    opacity: 1;
+}
+
+.mole-gallery-item .delete-button:hover {
+    background: rgba(220, 53, 69, 1);
+    transform: scale(1.1);
+}
+
+.mole-gallery-item .selected-indicator {
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(135, 206, 235, 0.9);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    opacity: 0;
+}
+
+.mole-gallery-item.selected .selected-indicator {
+    opacity: 1;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .game-container {
@@ -423,8 +746,20 @@ header p {
         margin: 20px;
     }
     
-    header h1 {
+    /* Mobile header layout */
+    .header-buttons {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .title-container h1 {
         font-size: 2.5rem;
+    }
+    
+    .pick-mole-button, .leaderboard-button {
+        min-width: 100px;
+        padding: 10px 15px;
+        font-size: 0.9rem;
     }
     
     .game-info {
@@ -433,7 +768,7 @@ header p {
     }
     
     .game-board {
-        gap: 15px;
+        gap: 12px; /* Further reduced for mobile */
         padding: 15px;
     }
     
@@ -445,6 +780,30 @@ header p {
     .face-image {
         width: 100px;
         height: 100px;
+    }
+    
+    /* Mobile modal adjustments */
+    .modal-content {
+        margin: 10px;
+        max-height: 95vh;
+    }
+    
+    .modal-header {
+        padding: 15px 20px;
+    }
+    
+    .modal-body {
+        padding: 20px;
+    }
+    
+    .mole-gallery {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 15px;
+    }
+    
+    .preview-frame {
+        width: 150px;
+        height: 150px;
     }
 }
 
